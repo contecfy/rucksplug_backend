@@ -39,7 +39,12 @@ export class LoanService {
         return await Loan.findById(id).populate("client");
     }
 
-    static async create(data: Partial<ILoan>) {
+    static async create(data: any): Promise<any> {
+        // Bulk creation support
+        if (Array.isArray(data)) {
+            return Promise.all(data.map(item => this.create(item)));
+        }
+
         const amount = data.amount || 0;
         const interestRate = data.interestRate || 0;
         
@@ -50,14 +55,12 @@ export class LoanService {
         data.totalPayable = totalPayable;
         data.remainingBalance = totalPayable;
         data.totalRepaid = 0;
-        data.status = "pending";
+        data.status = "ongoing"; 
         data.riskStatus = "green";
 
         const loan = await Loan.create(data);
 
-        // Auto-generate schedule if approved or start date exists
-        // Usually schedules are generated when the loan becomes 'ongoing'
-        // For now, we generate if startDate is provided
+        // Auto-generate schedule
         if (loan.startDate && loan.durationDays) {
             await ScheduleService.generateSchedule(
                 (loan._id as any).toString(),

@@ -62,6 +62,8 @@ export class LoanController {
      *     responses:
      *       201:
      *         description: Loan created
+     *     security:
+     *       - bearerAuth: []
      */
     static async createLoan(req: Request, res: Response) {
         try {
@@ -72,6 +74,30 @@ export class LoanController {
         }
     }
 
+    /**
+     * @swagger
+     * /loans/{id}:
+     *   put:
+     *     summary: Update a loan
+     *     tags: [Loans]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/Loan'
+     *     responses:
+     *       200:
+     *         description: Loan updated
+     *     security:
+     *       - bearerAuth: []
+     */
     static async updateLoan(req: Request, res: Response) {
         try {
             const loan = await LoanService.update(req.params.id as string, req.body);
@@ -82,6 +108,24 @@ export class LoanController {
         }
     }
 
+    /**
+     * @swagger
+     * /loans/{id}:
+     *   delete:
+     *     summary: Delete a loan
+     *     tags: [Loans]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Loan deleted
+     *     security:
+     *       - bearerAuth: []
+     */
     static async deleteLoan(req: Request, res: Response) {
         try {
             const loan = await LoanService.delete(req.params.id as string);
@@ -101,6 +145,8 @@ export class LoanController {
      *     responses:
      *       200:
      *         description: Loan approved
+     *     security:
+     *       - bearerAuth: []
      */
     static async approveLoan(req: Request, res: Response) {
         try {
@@ -121,6 +167,8 @@ export class LoanController {
      *     responses:
      *       200:
      *         description: Penalty applied
+     *     security:
+     *       - bearerAuth: []
      */
     static async applyPenalty(req: Request, res: Response) {
         try {
