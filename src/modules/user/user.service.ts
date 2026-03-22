@@ -61,7 +61,12 @@ export class UserService {
         return await User.findByIdAndDelete(id);
     }
 
-    static async register(data: Partial<IUser>) {
+    static async register(data: any): Promise<any> {
+        // Bulk registration support
+        if (Array.isArray(data)) {
+            return Promise.all(data.map(item => this.register(item)));
+        }
+
         console.log("📝 Registration Attempt:", data);
         
         // Check for existing user by individual unique fields

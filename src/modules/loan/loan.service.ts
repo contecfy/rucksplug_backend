@@ -63,7 +63,8 @@ export class LoanService {
                 (loan._id as any).toString(),
                 loan.totalPayable,
                 loan.durationDays,
-                loan.startDate
+                loan.startDate,
+                loan.repaymentFrequency
             );
         }
 
@@ -83,7 +84,8 @@ export class LoanService {
                     id,
                     loan.totalPayable,
                     loan.durationDays,
-                    update.startDate
+                    update.startDate,
+                    loan.repaymentFrequency
                 );
             }
         }

@@ -24,6 +24,9 @@
  *         riskStatus:
  *           type: string
  *           enum: [green, yellow, red]
+ *         repaymentFrequency:
+ *           type: string
+ *           enum: [daily, weekly, biweekly]
  *         purpose:
  *           type: string
  */
@@ -45,6 +48,7 @@ export interface ILoan extends Document {
 
     status: "pending" | "approved" | "ongoing" | "completed" | "defaulted";
     riskStatus: "green" | "yellow" | "red";
+    repaymentFrequency: "daily" | "weekly" | "biweekly";
 
     totalRepaid: number;
     remainingBalance: number;
@@ -109,6 +113,12 @@ const LoanSchema: Schema<ILoan> = new Schema(
             type: String,
             enum: ["green", "yellow", "red"],
             default: "green",
+        },
+        
+        repaymentFrequency: {
+            type: String,
+            enum: ["daily", "weekly", "biweekly"],
+            default: "daily",
         },
 
         totalRepaid: {

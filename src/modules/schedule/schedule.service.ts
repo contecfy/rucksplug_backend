@@ -23,19 +23,29 @@ export class ScheduleService {
     /**
      * Helper to generate a repayment schedule based on loan details
      */
-    static async generateSchedule(loanId: string, totalPayable: number, durationDays: number, startDate: Date) {
-        const installmentCount = Math.ceil(durationDays); // Assuming daily for now, can be adjusted
-        const dailyAmount = totalPayable / installmentCount;
+    static async generateSchedule(
+        loanId: string, 
+        totalPayable: number, 
+        durationDays: number, 
+        startDate: Date,
+        frequency: "daily" | "weekly" | "biweekly" = "daily"
+    ) {
+        let interval = 1;
+        if (frequency === "weekly") interval = 7;
+        if (frequency === "biweekly") interval = 14;
+
+        const installmentCount = Math.floor(durationDays / interval);
+        const installmentAmount = totalPayable / installmentCount;
 
         const schedules = [];
         for (let i = 1; i <= installmentCount; i++) {
             const dueDate = new Date(startDate);
-            dueDate.setDate(dueDate.getDate() + i);
+            dueDate.setDate(dueDate.getDate() + (i * interval));
 
             schedules.push({
                 loan: loanId,
                 dueDate,
-                expectedAmount: dailyAmount,
+                expectedAmount: installmentAmount,
                 status: "pending",
             });
         }

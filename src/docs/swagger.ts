@@ -10,8 +10,12 @@ const options: swaggerJsdoc.Options = {
         },
         servers: [
             {
+                url: "https://rucksplug-backend.onrender.com/api/v1",
+                description: "Production server",
+            },
+            {
                 url: "http://localhost:5000/api/v1",
-                description: "Development server",
+                description: "Local development server",
             },
         ],
         tags: [
