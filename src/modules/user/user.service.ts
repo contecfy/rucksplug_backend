@@ -117,4 +117,26 @@ export class UserService {
             expiresIn: "30d",
         });
     }
+
+    static async getEligibility(userId: string) {
+        const LoanMod = mongoose.model("Loan");
+        const CollateralMod = mongoose.model("Collateral");
+
+        const lastLoan = await LoanMod.findOne({ client: userId, status: "completed" }).sort({ updatedAt: -1 });
+        const collateral = await CollateralMod.find({ client: userId, status: "secured" });
+        
+        const totalCollateralValue = collateral.reduce((sum: any, c: any) => sum + c.value, 0);
+        const lastLoanAmount = (lastLoan as any)?.amount || 0;
+
+        const maxLoan = lastLoanAmount > 0 
+            ? Math.min(lastLoanAmount * 1.2, totalCollateralValue)
+            : totalCollateralValue * 0.5;
+
+        return {
+            lastLoanAmount,
+            totalCollateralValue,
+            suggestedMaxLoan: maxLoan,
+            isFirstTime: !lastLoan
+        };
+    }
 }
