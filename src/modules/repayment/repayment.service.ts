@@ -6,18 +6,16 @@ import RepaymentSchema, { IRepayment } from "./repayment.schema";
 //
 RepaymentSchema.post("save", async function (doc) {
     const Loan = mongoose.model("Loan");
+    const Schedule = mongoose.model("Schedule");
 
     const loan = await Loan.findById(doc.loan);
-
     if (!loan) return;
 
-    // Update total repaid
-    loan.totalRepaid += doc.amount;
-
-    // Update remaining balance
+    // 1. Update Loan totals
+    const amountPaid = doc.amount;
+    loan.totalRepaid += amountPaid;
     loan.remainingBalance = (loan as any).totalPayable - loan.totalRepaid;
 
-    // Update status
     if (loan.remainingBalance <= 0) {
         loan.status = "completed";
         loan.remainingBalance = 0;
@@ -26,6 +24,35 @@ RepaymentSchema.post("save", async function (doc) {
     }
 
     await loan.save();
+
+    // 2. Update Schedules (Waterfall logic)
+    // Find all pending/missed schedules for this loan
+    const schedules = await Schedule.find({
+        loan: doc.loan,
+        status: { $in: ["pending", "missed", "partially_paid"] },
+    }).sort({ dueDate: 1 });
+
+    let remainingPayment = amountPaid;
+
+    for (const schedule of schedules) {
+        if (remainingPayment <= 0) break;
+
+        const needed = schedule.expectedAmount - schedule.paidAmount;
+
+        if (remainingPayment >= needed) {
+            // Fully pay this schedule
+            remainingPayment -= needed;
+            schedule.paidAmount = schedule.expectedAmount;
+            schedule.status = "paid";
+        } else {
+            // Partially pay this schedule
+            schedule.paidAmount += remainingPayment;
+            schedule.status = "partially_paid";
+            remainingPayment = 0;
+        }
+
+        await (schedule as any).save();
+    }
 });
 
 export const Repayment = mongoose.model<IRepayment>("Repayment", RepaymentSchema);

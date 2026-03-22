@@ -21,6 +21,9 @@
  *         status:
  *           type: string
  *           enum: [pending, approved, ongoing, completed, defaulted]
+ *         riskStatus:
+ *           type: string
+ *           enum: [green, yellow, red]
  *         purpose:
  *           type: string
  */
@@ -41,9 +44,13 @@ export interface ILoan extends Document {
     dueDate: Date;
 
     status: "pending" | "approved" | "ongoing" | "completed" | "defaulted";
+    riskStatus: "green" | "yellow" | "red";
 
     totalRepaid: number;
     remainingBalance: number;
+
+    penaltyAmount: number;
+    isPenaltyApplied: boolean;
 
     purpose?: string;
 
@@ -98,6 +105,12 @@ const LoanSchema: Schema<ILoan> = new Schema(
             default: "pending",
         },
 
+        riskStatus: {
+            type: String,
+            enum: ["green", "yellow", "red"],
+            default: "green",
+        },
+
         totalRepaid: {
             type: Number,
             default: 0,
@@ -105,6 +118,16 @@ const LoanSchema: Schema<ILoan> = new Schema(
 
         remainingBalance: {
             type: Number,
+        },
+
+        penaltyAmount: {
+            type: Number,
+            default: 0,
+        },
+
+        isPenaltyApplied: {
+            type: Boolean,
+            default: false,
         },
 
         purpose: String,

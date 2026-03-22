@@ -83,12 +83,14 @@ const UserSchema: Schema<IUser> = new Schema(
             required: true,
             unique: true,
             lowercase: true,
+            trim: true,
         },
 
         phone: {
             type: String,
             required: true,
             unique: true,
+            trim: true,
         },
 
         password: {
@@ -112,6 +114,7 @@ const UserSchema: Schema<IUser> = new Schema(
             type: String,
             required: true,
             unique: true,
+            trim: true,
         },
 
         address: String,

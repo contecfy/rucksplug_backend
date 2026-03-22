@@ -111,4 +111,24 @@ export class LoanController {
             res.status(400).json({ message: error.message });
         }
     }
+
+    /**
+     * @swagger
+     * /loans/{id}/penalty:
+     *   post:
+     *     summary: Apply a 20% penalty to a loan
+     *     tags: [Loans]
+     *     responses:
+     *       200:
+     *         description: Penalty applied
+     */
+    static async applyPenalty(req: Request, res: Response) {
+        try {
+            const loan = await LoanService.applyPenalty(req.params.id as string);
+            if (!loan) return res.status(404).json({ message: "Loan not found" });
+            res.json(loan);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
 }

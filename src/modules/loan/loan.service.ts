@@ -26,6 +26,8 @@ LoanSchema.pre("save", async function () {
     }
 });
 
+import { ScheduleService } from "../schedule/schedule.service";
+
 export const Loan = mongoose.model<ILoan>("Loan", LoanSchema);
 
 export class LoanService {
@@ -41,19 +43,69 @@ export class LoanService {
         const amount = data.amount || 0;
         const interestRate = data.interestRate || 0;
         
-        // Calculate total payable (Simple Interest for now)
-        const totalPayable = amount + (amount * (interestRate / 100));
+        const interestAmount = (amount * interestRate) / 100;
+        const totalPayable = amount + interestAmount;
         
+        data.interestAmount = interestAmount;
         data.totalPayable = totalPayable;
         data.remainingBalance = totalPayable;
         data.totalRepaid = 0;
         data.status = "pending";
+        data.riskStatus = "green";
 
-        return await Loan.create(data);
+        const loan = await Loan.create(data);
+
+        // Auto-generate schedule if approved or start date exists
+        // Usually schedules are generated when the loan becomes 'ongoing'
+        // For now, we generate if startDate is provided
+        if (loan.startDate && loan.durationDays) {
+            await ScheduleService.generateSchedule(
+                (loan._id as any).toString(),
+                loan.totalPayable,
+                loan.durationDays,
+                loan.startDate
+            );
+        }
+
+        return loan;
     }
 
     static async updateStatus(id: string, status: string) {
-        return await Loan.findByIdAndUpdate(id, { status }, { new: true });
+        const update: any = { status };
+        
+        // If loan becomes ongoing, set start date if not set
+        if (status === "ongoing") {
+            const loan = await Loan.findById(id);
+            if (loan && !loan.startDate) {
+                update.startDate = new Date();
+                // Also generate schedule if it doesn't exist
+                await ScheduleService.generateSchedule(
+                    id,
+                    loan.totalPayable,
+                    loan.durationDays,
+                    update.startDate
+                );
+            }
+        }
+        
+        return await Loan.findByIdAndUpdate(id, update, { new: true });
+    }
+
+    static async applyPenalty(id: string) {
+        const loan = await Loan.findById(id);
+        if (!loan || loan.isPenaltyApplied) return loan;
+
+        const penalty = loan.remainingBalance * 0.20; // 20% penalty
+        
+        return await Loan.findByIdAndUpdate(id, {
+            $inc: { 
+                remainingBalance: penalty,
+                totalPayable: penalty,
+                penaltyAmount: penalty 
+            },
+            isPenaltyApplied: true,
+            riskStatus: "red"
+        }, { new: true });
     }
 
     static async update(id: string, data: Partial<ILoan>) {

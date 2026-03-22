@@ -3,11 +3,13 @@ import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./docs/swagger";
 import routes from "./routes";
+import { logger } from "./middlewares/logger.middleware";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(logger);
 
 app.get("/", (req, res) => {
     res.send("Rucks Plug API running 🚀");

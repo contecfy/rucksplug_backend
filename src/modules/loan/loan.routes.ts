@@ -8,6 +8,7 @@ router.get("/", LoanController.getLoans);
 router.get("/:id", LoanController.getLoanById);
 router.post("/", protect, LoanController.createLoan);
 router.patch("/:id/approve", protect, LoanController.approveLoan);
+router.post("/:id/penalty", protect, LoanController.applyPenalty);
 router.put("/:id", protect, LoanController.updateLoan);
 router.delete("/:id", protect, LoanController.deleteLoan);
 

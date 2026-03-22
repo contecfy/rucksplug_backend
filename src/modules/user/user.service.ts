@@ -37,6 +37,9 @@ UserSchema.methods.comparePin = async function (pin: string) {
 
 export const User = mongoose.model<IUser>("User", UserSchema);
 
+import { Loan } from "../loan/loan.service";
+import { Collateral } from "../collateral/collateral.service";
+
 export class UserService {
     static async getAll() {
         return await User.find();
@@ -59,12 +62,31 @@ export class UserService {
     }
 
     static async register(data: Partial<IUser>) {
-        const existingUser = await User.findOne({ 
-            $or: [{ email: data.email }, { username: data.username }, { phone: data.phone }] 
-        });
-        if (existingUser) throw new Error("User already exists with this email, username, or phone");
+        console.log("📝 Registration Attempt:", data);
+        
+        // Check for existing user by individual unique fields
+        const checks = [
+            { field: "email", message: "Email already in use" },
+            { field: "phone", message: "Phone number already in use" },
+            { field: "username", message: "Username already taken" },
+            { field: "nationalId", message: "National ID already registered" },
+        ];
+
+        for (const check of checks) {
+            const value = (data as any)[check.field];
+            if (value) {
+                console.log(`🔍 Checking ${check.field}: [${value}]`);
+                const exists = await User.findOne({ [check.field]: value });
+                if (exists) {
+                    console.log(`❌ Duplicate found for ${check.field}`);
+                    throw new Error(check.message);
+                }
+            }
+        }
 
         const user = await User.create(data);
+        console.log("✅ User Created Successfully");
+        
         const token = this.generateToken((user._id as any).toString());
         return { user, token };
     }
@@ -77,11 +99,11 @@ export class UserService {
         if (!user) throw new Error("Invalid credentials");
 
         if (pin) {
-            const isMatch = await (user as any).comparePin(pin);
-            if (!isMatch) throw new Error("Invalid credentials");
+            const isMatch = await bcrypt.compare(pin, user.pin as string);
+            if (!isMatch) throw new Error("Invalid PIN");
         } else if (password) {
-            const isMatch = await (user as any).comparePassword(password);
-            if (!isMatch) throw new Error("Invalid credentials");
+            const isMatch = await bcrypt.compare(password, user.password as string);
+            if (!isMatch) throw new Error("Invalid password");
         } else {
             throw new Error("Password or PIN is required");
         }

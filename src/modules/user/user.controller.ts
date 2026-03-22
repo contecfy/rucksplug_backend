@@ -146,4 +146,44 @@ export class UserController {
             res.status(500).json({ message: error.message });
         }
     }
+    /**
+     * @swagger
+     * /users/logout:
+     *   post:
+     *     summary: Logout user
+     *     tags: [Users]
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       200:
+     *         description: Logged out successfully
+     *       401:
+     *         description: Not authorized
+     */
+    static async logout(req: Request, res: Response) {
+        try {
+            res.status(200).json({ message: "Logged out successfully" });
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    /**
+     * @swagger
+     * /users/{id}/eligibility:
+     *   get:
+     *     summary: Check user loan eligibility
+     *     tags: [Users]
+     *     responses:
+     *       200:
+     *         description: Eligibility data
+     */
+    static async getEligibility(req: Request, res: Response) {
+        try {
+            const eligibility = await UserService.getEligibility(req.params.id as string);
+            res.json(eligibility);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
 }
