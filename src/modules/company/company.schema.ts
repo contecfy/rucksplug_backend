@@ -43,6 +43,7 @@ export interface ICompany extends Document {
 
   canChangeInterest: boolean;
   website?: string;
+  employees?: number;
   policy?: string; // privacy policy / terms
 
   createdAt: Date;
@@ -81,6 +82,10 @@ const CompanySchema: Schema<ICompany> = new Schema(
       default: true,
     },
     website: String,
+    employees: {
+      type: Number,
+      default: 0,
+    },
     policy: String,
   },
   {

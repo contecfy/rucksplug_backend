@@ -29,6 +29,7 @@ export class ScheduleService {
         totalPayable: number, 
         durationDays: number, 
         startDate: Date,
+        companyId: string,
         frequency: "daily" | "weekly" | "biweekly" = "daily"
     ) {
         let interval = 1;
@@ -48,6 +49,7 @@ export class ScheduleService {
                 dueDate,
                 expectedAmount: installmentAmount,
                 status: "pending",
+                company: companyId,
             });
         }
 

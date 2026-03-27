@@ -68,6 +68,7 @@ export class LoanService {
                 loan.totalPayable,
                 loan.durationDays,
                 loan.startDate,
+                loan.company.toString(),
                 loan.repaymentFrequency
             );
         }
