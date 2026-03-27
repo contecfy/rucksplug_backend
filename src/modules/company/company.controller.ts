@@ -8,6 +8,8 @@ export class CompanyController {
      *   get:
      *     summary: Get all companies
      *     tags: [Companies]
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: List of companies
@@ -33,6 +35,8 @@ export class CompanyController {
      *         required: true
      *         schema:
      *           type: string
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: Company found
@@ -59,6 +63,8 @@ export class CompanyController {
      *         application/json:
      *           schema:
      *             $ref: '#/components/schemas/Company'
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       201:
      *         description: Company created
@@ -93,6 +99,8 @@ export class CompanyController {
      *             properties:
      *               interestRate:
      *                 type: number
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: Interest rate updated
@@ -119,6 +127,8 @@ export class CompanyController {
      *         required: true
      *         schema:
      *           type: string
+     *     security:
+     *       - bearerAuth: []
      *     responses:
      *       200:
      *         description: Company deleted
