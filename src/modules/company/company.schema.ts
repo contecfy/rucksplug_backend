@@ -24,6 +24,8 @@ import mongoose, { Schema, Document } from "mongoose";
  *           type: number
  *         canChangeInterest:
  *           type: boolean
+ *         website:
+ *           type: string
  */
 
 export interface ICompany extends Document {
@@ -40,7 +42,7 @@ export interface ICompany extends Document {
   interestRateLastUpdated: Date;
 
   canChangeInterest: boolean;
-
+  website?: string;
   policy?: string; // privacy policy / terms
 
   createdAt: Date;
@@ -78,7 +80,7 @@ const CompanySchema: Schema<ICompany> = new Schema(
       type: Boolean,
       default: true,
     },
-
+    website: String,
     policy: String,
   },
   {
